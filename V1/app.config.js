@@ -36,6 +36,14 @@ module.exports = {
       'expo-secure-store',
       'expo-image',
       [
+        '@rnmapbox/maps',
+        {
+          // Downloads token (sk.*) — required to pull the Mapbox SDK on build.
+          // Add MAPBOX_DOWNLOADS_TOKEN=sk.eyJ1... to your .env file.
+          RNMapboxMapsDownloadsToken: process.env.MAPBOX_DOWNLOADS_TOKEN ?? '',
+        },
+      ],
+      [
         'expo-image-picker',
         {
           photosPermission: 'Roam needs access to your photos to let you post experiences.',

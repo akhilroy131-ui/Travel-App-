@@ -452,3 +452,53 @@ WHERE e.is_published = true
 ORDER BY e.created_at DESC
 LIMIT 20;
 ```
+
+---
+
+## RPC Functions (Phase 8 — Map)
+
+### `get_nearby_experiences`
+
+Used by `useNearbyExperiences` hook to return lightweight `ExperiencePin` rows
+within a given radius. Run this in the Supabase SQL Editor.
+
+```sql
+CREATE OR REPLACE FUNCTION get_nearby_experiences(
+  ref_lat  double precision,
+  ref_lng  double precision,
+  radius_km double precision DEFAULT 25
+)
+RETURNS TABLE (
+  id             uuid,
+  title          text,
+  category       text,
+  location_lat   double precision,
+  location_lng   double precision,
+  price          numeric,
+  avg_rating     numeric
+)
+LANGUAGE sql STABLE SECURITY DEFINER
+AS $$
+  SELECT
+    e.id,
+    e.title,
+    e.category,
+    e.location_lat,
+    e.location_lng,
+    e.price,
+    e.avg_rating
+  FROM experiences e
+  WHERE
+    e.is_published = true
+    AND ST_DWithin(
+      e.location_geo,
+      ST_SetSRID(ST_MakePoint(ref_lng, ref_lat), 4326)::geography,
+      radius_km * 1000  -- ST_DWithin uses metres for geography type
+    )
+  ORDER BY e.location_geo <-> ST_SetSRID(ST_MakePoint(ref_lng, ref_lat), 4326)::geography
+  LIMIT 200;
+$$;
+
+-- Grant execute to authenticated and anon roles
+GRANT EXECUTE ON FUNCTION get_nearby_experiences TO authenticated, anon;
+```
