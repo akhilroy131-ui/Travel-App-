@@ -16,7 +16,6 @@ interface ExperienceCardProps {
 
 export function ExperienceCard({ experience, onPress, style }: ExperienceCardProps) {
   const category = getCategoryById(experience.category)
-  const imageAspect = CARD_WIDTH / (CARD_WIDTH * (9 / 16))
 
   return (
     <TouchableOpacity

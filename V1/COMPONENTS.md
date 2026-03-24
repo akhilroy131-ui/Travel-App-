@@ -284,6 +284,33 @@ Renders: Full-bleed image with heart icon + `like_count` overlaid at bottom.
 
 ---
 
+### `ExperienceCardSkeleton`
+Pulsing placeholder card shown while experience list is loading (first page only).
+Matches the layout of `ExperienceCard` — same aspect-ratio image block, same info row.
+
+```typescript
+interface ExperienceCardSkeletonProps {
+  style?: ViewStyle
+}
+```
+
+Uses `Animated.loop` with opacity 0.4 → 1 → 0.4 at 700 ms per step. No extra deps.
+
+---
+
+### `ErrorBoundary`
+React class component that catches render-phase errors from its subtree.
+Wraps the entire app in `App.tsx`. Renders a themed fallback UI with a "Try Again" button that resets the error state.
+
+```typescript
+interface ErrorBoundaryProps {
+  children: ReactNode
+  fallback?: ReactNode   // custom fallback; uses built-in themed UI if omitted
+}
+```
+
+---
+
 ### `MapPin`
 Custom Mapbox `PointAnnotation` marker (Phase 8). Colour reflects category.
 

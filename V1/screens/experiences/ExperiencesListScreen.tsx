@@ -12,6 +12,7 @@ import { ExperienceStackParamList } from '../../types/navigation'
 import { ExperienceCategory, ExperienceFilters } from '../../types/models'
 import { useExperiences } from '../../hooks/experiences/useExperiences'
 import { ExperienceCard } from '../../components/ExperienceCard'
+import { ExperienceCardSkeleton } from '../../components/ExperienceCardSkeleton'
 import { CategoryFilter } from '../../components/CategoryFilter'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { ErrorMessage } from '../../components/ui/ErrorMessage'
@@ -66,7 +67,14 @@ export default function ExperiencesListScreen({ navigation }: Props) {
     </View>
   )
 
-  const ListEmpty = !loading ? (
+  // Show skeletons on first load (no data yet), empty state only when load is done
+  const ListEmpty = loading && experiences.length === 0 ? (
+    <View style={styles.skeletonList}>
+      {[1, 2, 3].map((i) => (
+        <ExperienceCardSkeleton key={i} style={styles.card} />
+      ))}
+    </View>
+  ) : !loading ? (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyEmoji}>🔍</Text>
       <Text style={styles.emptyTitle}>No experiences found</Text>
@@ -181,6 +189,9 @@ const styles = StyleSheet.create({
   },
   card: {
     marginHorizontal: Spacing.base,
+  },
+  skeletonList: {
+    paddingTop: Spacing.xs,
   },
   footerSpinner: {
     flex: 0,

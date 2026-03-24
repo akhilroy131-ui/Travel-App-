@@ -4,8 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MapboxGL from '@rnmapbox/maps'
 import * as Location from 'expo-location'
 import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { ExperienceStackParamList } from '../../types/navigation'
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
+import { AppTabsParamList } from '../../types/navigation'
 import { useNearbyExperiences } from '../../hooks/experiences/useNearbyExperiences'
 import { MapPin } from '../../components/MapPin'
 import { ExperiencePreviewSheet } from '../../components/ExperiencePreviewSheet'
@@ -19,7 +19,7 @@ const mapboxToken: string =
   Constants.expoConfig?.extra?.mapboxToken ?? ''
 MapboxGL.setAccessToken(mapboxToken)
 
-type NavProp = NativeStackNavigationProp<ExperienceStackParamList, 'ExperiencesList'>
+type NavProp = BottomTabNavigationProp<AppTabsParamList, 'Map'>
 
 export default function MapScreen() {
   const insets = useSafeAreaInsets()
@@ -86,7 +86,11 @@ export default function MapScreen() {
   const handleViewDetail = useCallback(
     (experienceId: string) => {
       setSelectedPin(null)
-      navigation.navigate('ExperienceDetail', { experienceId })
+      // Cross-tab deep link: switch to Experiences tab and push ExperienceDetail
+      navigation.navigate('Experiences', {
+        screen: 'ExperienceDetail',
+        params: { experienceId },
+      })
     },
     [navigation]
   )

@@ -8,7 +8,7 @@
 | Language | TypeScript | ~5.9 (strict: false) |
 | Navigation | React Navigation v7 (native-stack + bottom-tabs) | ^7 |
 | Backend | Supabase (Auth, PostgreSQL, Realtime, Storage) | ^2 |
-| Maps | @rnmapbox/maps (Phase 8) | TBD |
+| Maps | @rnmapbox/maps | 10.3.0 |
 | State | React hooks only — no Redux/Zustand in v1 | — |
 | Auth (v1) | Email/password, Google OAuth, Apple Sign-In | — |
 
@@ -138,7 +138,9 @@ V1/
 ```
 EXPO_PUBLIC_SUPABASE_URL=        ← Supabase project URL
 EXPO_PUBLIC_SUPABASE_ANON_KEY=   ← Supabase anon/public key
-EXPO_PUBLIC_MAPBOX_TOKEN=        ← Mapbox access token (Phase 8)
+EXPO_PUBLIC_MAPBOX_TOKEN=        ← Mapbox public token (pk.*) — used at runtime
+MAPBOX_DOWNLOADS_TOKEN=          ← Mapbox secret token (sk.*) — used at BUILD TIME only
+                                    (pulls Mapbox SDK from private Maven/CocoaPods repos)
 ```
 
 These are read in `app.config.js` and passed to the app via `Constants.expoConfig.extra`.
