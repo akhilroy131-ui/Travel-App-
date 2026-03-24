@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import MapboxGL from '@rnmapbox/maps'
 import * as Location from 'expo-location'
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -14,32 +13,50 @@ import { Config } from '../../constants/config'
 import { Colors, Spacing, BorderRadius, Typography } from '../../constants/theme'
 import Constants from 'expo-constants'
 
-// Initialise Mapbox with the public access token
-const mapboxToken: string =
-  Constants.expoConfig?.extra?.mapboxToken ?? ''
-MapboxGL.setAccessToken(mapboxToken)
+// Lazy-load Mapbox — native module not available in Expo Go
+let MB: typeof import('@rnmapbox/maps').default | null = null
+try {
+  MB = require('@rnmapbox/maps').default
+  const mapboxToken: string = Constants.expoConfig?.extra?.mapboxToken ?? ''
+  MB!.setAccessToken(mapboxToken)
+} catch {
+  // Running in Expo Go — MapScreen will show a placeholder
+}
 
 type NavProp = BottomTabNavigationProp<AppTabsParamList, 'Map'>
 
-export default function MapScreen() {
+// Shown in Expo Go where native Mapbox module is unavailable
+function MapUnavailable() {
+  return (
+    <View style={styles.unavailable}>
+      <Text style={styles.unavailableEmoji}>🗺️</Text>
+      <Text style={styles.unavailableTitle}>Map requires a custom build</Text>
+      <Text style={styles.unavailableBody}>
+        {'Mapbox is a native module and cannot run in Expo Go.\n\nRun '}
+        <Text style={styles.unavailableCode}>npx expo run:android</Text>
+        {' or '}
+        <Text style={styles.unavailableCode}>npx expo run:ios</Text>
+        {' to enable the map.'}
+      </Text>
+    </View>
+  )
+}
+
+// Inner component — only rendered when MB is available
+function MapScreenContent() {
   const insets = useSafeAreaInsets()
   const navigation = useNavigation<NavProp>()
 
-  // User location
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationError, setLocationError] = useState(false)
-
-  // Map centre — defaults to NYC until user location is obtained
   const [centre, setCentre] = useState({
     lat: Config.MAP_DEFAULT_LAT,
     lng: Config.MAP_DEFAULT_LNG,
   })
-  const [radiusKm, setRadiusKm] = useState(Config.DEFAULT_RADIUS_KM)
-
+  const [radiusKm] = useState(Config.DEFAULT_RADIUS_KM)
   const [selectedPin, setSelectedPin] = useState<ExperiencePin | null>(null)
-  const cameraRef = useRef<MapboxGL.Camera>(null)
+  const cameraRef = useRef<any>(null)
 
-  // Request location permission on mount
   useEffect(() => {
     ;(async () => {
       const { status } = await Location.requestForegroundPermissionsAsync()
@@ -79,14 +96,11 @@ export default function MapScreen() {
     })
   }, [])
 
-  const handleDismiss = useCallback(() => {
-    setSelectedPin(null)
-  }, [])
+  const handleDismiss = useCallback(() => setSelectedPin(null), [])
 
   const handleViewDetail = useCallback(
     (experienceId: string) => {
       setSelectedPin(null)
-      // Cross-tab deep link: switch to Experiences tab and push ExperienceDetail
       navigation.navigate('Experiences', {
         screen: 'ExperienceDetail',
         params: { experienceId },
@@ -104,19 +118,24 @@ export default function MapScreen() {
     })
   }, [userLocation])
 
+  const MapView = MB!.MapView
+  const Camera = MB!.Camera
+  const UserLocation = MB!.UserLocation
+  const MarkerView = MB!.MarkerView
+
   return (
     <View style={styles.screen}>
-      <MapboxGL.MapView
+      <MapView
         style={styles.map}
-        styleURL={MapboxGL.StyleURL.Dark}
+        styleURL={MB!.StyleURL.Dark}
         onPress={handleDismiss}
         logoEnabled={false}
         attributionEnabled={false}
         compassEnabled
-        compassViewPosition={1} // top-right
+        compassViewPosition={1}
         compassViewMargins={{ x: Spacing.base, y: insets.top + Spacing.sm }}
       >
-        <MapboxGL.Camera
+        <Camera
           ref={cameraRef}
           defaultSettings={{
             centerCoordinate: [centre.lng, centre.lat],
@@ -124,12 +143,10 @@ export default function MapScreen() {
           }}
         />
 
-        {/* User location puck */}
-        <MapboxGL.UserLocation visible renderMode={MapboxGL.UserLocationRenderMode.Native} />
+        <UserLocation visible renderMode={MB!.UserLocationRenderMode.Native} />
 
-        {/* Experience pins */}
         {pins.map((pin) => (
-          <MapboxGL.MarkerView
+          <MarkerView
             key={pin.id}
             coordinate={[pin.location_lng, pin.location_lat]}
             anchor={{ x: 0.5, y: 1 }}
@@ -139,11 +156,10 @@ export default function MapScreen() {
               isSelected={selectedPin?.id === pin.id}
               onPress={handlePinPress}
             />
-          </MapboxGL.MarkerView>
+          </MarkerView>
         ))}
-      </MapboxGL.MapView>
+      </MapView>
 
-      {/* Top controls */}
       <View style={[styles.topBar, { top: insets.top + Spacing.sm }]}>
         {pinsLoading && (
           <View style={styles.loadingBadge}>
@@ -157,7 +173,6 @@ export default function MapScreen() {
         )}
       </View>
 
-      {/* Recenter button */}
       {userLocation && (
         <TouchableOpacity
           style={[styles.recenterBtn, { bottom: selectedPin ? 180 : insets.bottom + Spacing.xl }]}
@@ -168,7 +183,6 @@ export default function MapScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Preview sheet — slides up when a pin is selected */}
       <ExperiencePreviewSheet
         experienceId={selectedPin?.id ?? null}
         onViewDetail={handleViewDetail}
@@ -176,6 +190,11 @@ export default function MapScreen() {
       />
     </View>
   )
+}
+
+export default function MapScreen() {
+  if (!MB) return <MapUnavailable />
+  return <MapScreenContent />
 }
 
 const styles = StyleSheet.create({
@@ -227,5 +246,32 @@ const styles = StyleSheet.create({
   recenterIcon: {
     fontSize: 20,
     color: Colors.accent,
+  },
+  unavailable: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.xxl,
+    gap: Spacing.md,
+  },
+  unavailableEmoji: {
+    fontSize: 48,
+  },
+  unavailableTitle: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.textPrimary,
+    textAlign: 'center',
+  },
+  unavailableBody: {
+    fontSize: Typography.size.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: Typography.size.sm * 1.7,
+  },
+  unavailableCode: {
+    color: Colors.accent,
+    fontWeight: Typography.weight.semibold,
   },
 })
