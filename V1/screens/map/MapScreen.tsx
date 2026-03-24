@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native'
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MapboxGL from '@rnmapbox/maps'
 import * as Location from 'expo-location'
@@ -64,7 +64,7 @@ export default function MapScreen() {
     })()
   }, [])
 
-  const { pins, loading: pinsLoading, refresh: refreshPins } = useNearbyExperiences({
+  const { pins, loading: pinsLoading } = useNearbyExperiences({
     lat: centre.lat,
     lng: centre.lng,
     radiusKm,

@@ -12,6 +12,7 @@ interface PhotoWallProps {
   numColumns?: number
   onPostPress: (post: Post) => void
   onLikePress?: (postId: string) => void
+  isLikedMap?: Record<string, boolean>
   currentUserId?: string
   ListHeaderComponent?: React.ReactElement
   ListEmptyComponent?: React.ReactElement
@@ -22,6 +23,7 @@ export function PhotoWall({
   numColumns = 3,
   onPostPress,
   onLikePress,
+  isLikedMap,
   currentUserId,
   ListHeaderComponent,
   ListEmptyComponent,
@@ -48,7 +50,7 @@ export function PhotoWall({
               size={tileSize}
               onPress={() => onPostPress(item)}
               onLikePress={onLikePress ? () => onLikePress(item.id) : undefined}
-              isLiked={false} // toggled in Phase 7 via useToggleLike
+              isLiked={isLikedMap ? !!isLikedMap[item.id] : false}
             />
           </View>
         )

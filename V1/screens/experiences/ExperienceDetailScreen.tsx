@@ -86,15 +86,6 @@ export default function ExperienceDetailScreen({ route, navigation }: Props) {
           <View style={styles.imagePlaceholder} />
         )}
 
-        {/* Back button overlay */}
-        <TouchableOpacity
-          style={[styles.backButton, { top: insets.top + Spacing.sm }]}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
-
         {/* Content body */}
         <View style={styles.body}>
           {/* Category + title */}
@@ -193,6 +184,15 @@ export default function ExperienceDetailScreen({ route, navigation }: Props) {
         {/* Bottom padding for sticky bar */}
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Back button — outside ScrollView so it stays fixed while scrolling */}
+      <TouchableOpacity
+        style={[styles.backButton, { top: insets.top + Spacing.sm }]}
+        onPress={() => navigation.goBack()}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.backIcon}>‹</Text>
+      </TouchableOpacity>
 
       {/* Sticky bottom bar: price + book CTA */}
       <View style={[styles.stickyBar, { paddingBottom: insets.bottom + Spacing.sm }]}>

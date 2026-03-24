@@ -43,7 +43,7 @@ export interface Experience {
   photos?: ExperiencePhoto[]
 }
 
-// Lightweight type used only for map pin rendering
+// Lightweight type used only for map pin rendering (matches get_nearby_experiences RPC columns)
 export interface ExperiencePin {
   id: string
   title: string
@@ -52,7 +52,6 @@ export interface ExperiencePin {
   location_lng: number
   price: number
   avg_rating: number
-  cover_image_url: string | null
 }
 
 export interface ExperiencePhoto {

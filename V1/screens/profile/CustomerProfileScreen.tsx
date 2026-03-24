@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   View,
   Text,
@@ -199,6 +199,7 @@ export default function CustomerProfileScreen() {
             posts={posts}
             onPostPress={handlePostPress}
             onLikePress={handleLikePress}
+            isLikedMap={likeMap}
             currentUserId={userId ?? undefined}
             ListHeaderComponent={PhotoWallHeader}
             ListEmptyComponent={PhotoWallEmpty}
