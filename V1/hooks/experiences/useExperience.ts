@@ -33,7 +33,7 @@ export function useExperience(experienceId: string | null): UseExperienceResult 
             id,
             display_name,
             avatar_url,
-            role,
+            is_host,
             bio,
             created_at,
             updated_at

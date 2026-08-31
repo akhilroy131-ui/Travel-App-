@@ -40,10 +40,11 @@ authenticated write policies, and an explicit least-privilege Data API surface.
 
 ## Next implementation sequence
 
-1. Align the app's old `profiles.role` assumptions with the new opt-in `profiles.is_host`
-   model and wire the generated database types into the Supabase client.
+1. Add the explicit host opt-in flow that creates `host_profiles` and private
+   `host_contacts` rows.
 2. Resolve the existing Google Maps implementation versus the documented Mapbox abstraction.
 3. Implement `specs/001-image-pipeline-and-ci.md` before adding feature work.
-4. Configure Supabase Auth redirect URLs and any OAuth providers required for release.
+4. Configure Supabase Auth redirect URLs and required OAuth providers, then exercise the
+   authenticated signup/profile/listing/storage flows.
 
 See `docs/PROGRESS.md` for live status and `docs/DECISIONS.md` for design rationale.

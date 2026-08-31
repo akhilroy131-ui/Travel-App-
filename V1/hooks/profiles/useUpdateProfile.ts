@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Profile } from '../../types/models'
+import type { TablesUpdate } from '../../types/database'
 
-interface UpdateProfilePayload {
-  display_name?: string
-  bio?: string
-  avatar_url?: string
-}
+type UpdateProfilePayload = Pick<
+  TablesUpdate<'profiles'>,
+  'display_name' | 'bio' | 'avatar_url'
+>
 
 interface UseUpdateProfileResult {
   update: (userId: string, payload: UpdateProfilePayload) => Promise<boolean>

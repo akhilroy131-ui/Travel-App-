@@ -3,6 +3,37 @@
 This is the durable handoff log for completed work, verification evidence, open decisions,
 and the next safe step. Update it after every material implementation or database change.
 
+## 2026-09-01 — App aligned with generated profile contract
+
+### Completed
+
+- Typed the shared Supabase client as `createClient<Database>()`.
+- Replaced hand-written database row interfaces with aliases/compositions built from the
+  generated `Tables<...>` and RPC return types.
+- Removed the obsolete traveller/host selector and user-editable `role` metadata from
+  signup. New accounts start as travellers; hosting remains an explicit `host_profiles`
+  opt-in.
+- Updated profile joins and the customer profile screen to use `profiles.is_host`.
+- Typed profile updates from the generated `TablesUpdate<'profiles'>` contract.
+
+### Test evidence
+
+- Added a compile-time regression contract covering both the generated profile shape and the
+  three-argument, role-free signup function.
+- RED: TypeScript failed because the app's old `Profile` contained `role` instead of
+  `is_host`; checkpoint commit `667f9b8`.
+- GREEN: `V1/node_modules/.bin/tsc --noEmit` passes after the alignment.
+- Live verification confirms `profiles.is_host` is `boolean not null default false`, the
+  legacy `role` column is absent, and the new project currently has zero profile rows.
+
+### Next safe steps
+
+1. Build the host opt-in flow that creates `host_profiles` and optionally `host_contacts`.
+2. Configure Auth redirect URLs and required OAuth providers.
+3. Exercise signup, profile update, host opt-in, listing creation, and storage uploads with
+   authenticated test accounts.
+4. Implement the image pipeline and CI specification before expanding feature scope.
+
 ## 2026-09-01 — New Roam Supabase project created and migrated
 
 ### Completed

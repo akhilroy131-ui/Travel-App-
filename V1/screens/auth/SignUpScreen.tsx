@@ -3,7 +3,6 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator,
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { AuthStackParamList } from '../../types/navigation'
 import { signUpWithEmail } from '../../lib/auth'
-import { UserRole } from '../../types/models'
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>
@@ -12,7 +11,6 @@ export default function SignUpScreen({ navigation }: Props) {
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<UserRole>('traveller')
   const [loading, setLoading] = useState(false)
 
   async function handleSignUp() {
@@ -25,7 +23,7 @@ export default function SignUpScreen({ navigation }: Props) {
       return
     }
     setLoading(true)
-    const { error } = await signUpWithEmail(email, password, displayName, role)
+    const { error } = await signUpWithEmail(email, password, displayName)
     setLoading(false)
     if (error) {
       Alert.alert('Sign up failed', error.message)
@@ -64,28 +62,6 @@ export default function SignUpScreen({ navigation }: Props) {
           value={password}
           onChangeText={setPassword}
         />
-
-        {/* Role selector */}
-        <Text style={styles.roleLabel}>I want to…</Text>
-        <View style={styles.roleRow}>
-          <TouchableOpacity
-            style={[styles.roleOption, role === 'traveller' && styles.roleOptionSelected]}
-            onPress={() => setRole('traveller')}
-          >
-            <Text style={[styles.roleOptionText, role === 'traveller' && styles.roleOptionTextSelected]}>
-              🧳 Explore experiences
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.roleOption, role === 'host' && styles.roleOptionSelected]}
-            onPress={() => setRole('host')}
-          >
-            <Text style={[styles.roleOptionText, role === 'host' && styles.roleOptionTextSelected]}>
-              🏡 Host experiences
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp} disabled={loading}>
           {loading ? (
             <ActivityIndicator color={Colors.textOnAccent} />
@@ -135,38 +111,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.base,
     borderWidth: 1,
     borderColor: Colors.surfaceBorder,
-  },
-  roleLabel: {
-    color: Colors.textSecondary,
-    fontSize: Typography.size.sm,
-    fontWeight: Typography.weight.medium,
-    marginBottom: -Spacing.xs,
-  },
-  roleRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  roleOption: {
-    flex: 1,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.surfaceBorder,
-    paddingVertical: Spacing.md,
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-  },
-  roleOptionSelected: {
-    borderColor: Colors.accent,
-    backgroundColor: Colors.accent + '18',
-  },
-  roleOptionText: {
-    color: Colors.textSecondary,
-    fontSize: Typography.size.sm,
-    fontWeight: Typography.weight.medium,
-  },
-  roleOptionTextSelected: {
-    color: Colors.accent,
-    fontWeight: Typography.weight.bold,
   },
   primaryButton: {
     backgroundColor: Colors.accent,

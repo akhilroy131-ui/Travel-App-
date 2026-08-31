@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import * as SecureStore from 'expo-secure-store'
 import Constants from 'expo-constants'
+import type { Database } from '../types/database'
 
 // Environment variables — set in .env (EXPO_PUBLIC_ prefix exposes them to the JS bundle)
 const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl as string
@@ -19,7 +20,7 @@ const ExpoSecureStoreAdapter = {
   removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: ExpoSecureStoreAdapter,
     autoRefreshToken: true,

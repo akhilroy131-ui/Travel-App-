@@ -158,9 +158,11 @@ export default function CustomerProfileScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* Name + role */}
+          {/* Name + host status */}
           <Text style={styles.displayName}>{profile.display_name}</Text>
-          <Text style={styles.role}>{profile.role === 'host' ? 'Host on Roam' : 'Traveller'}</Text>
+          <Text style={styles.hostStatus}>
+            {profile.is_host ? 'Host on Roam' : 'Traveller'}
+          </Text>
 
           {/* Bio */}
           {profile.bio ? (
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     textAlign: 'center',
   },
-  role: {
+  hostStatus: {
     fontSize: Typography.size.sm,
     color: Colors.accent,
     fontWeight: Typography.weight.semibold,

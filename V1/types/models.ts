@@ -1,5 +1,6 @@
-// Roam — Core Data Models
-// These match the Supabase schema defined in SUPABASE_SCHEMA.md
+// Roam — app-facing data models built from the generated Supabase contract.
+
+import type { Database, Tables } from './database'
 
 export type ExperienceCategory =
   | 'food_drink'
@@ -7,110 +8,40 @@ export type ExperienceCategory =
   | 'culture_history'
   | 'wellness_mindfulness'
 
-export type UserRole = 'traveller' | 'host'
+export type Profile = Tables<'profiles'>
 
-export interface Profile {
-  id: string
-  role: UserRole
-  display_name: string
-  avatar_url: string | null
-  bio: string | null
-  created_at: string
-  updated_at: string
-}
-
-export interface Experience {
-  id: string
-  host_id: string
-  title: string
-  description: string
+export type Experience = Omit<Tables<'experiences'>, 'category'> & {
   category: ExperienceCategory
-  price: number
-  currency: string
-  location_lat: number
-  location_lng: number
-  location_name: string
-  cover_image_url: string | null
-  is_published: boolean
-  avg_rating: number
-  review_count: number
-  max_guests: number | null
-  duration_minutes: number | null
-  created_at: string
-  updated_at: string
   // Joined relations (populated selectively by hooks)
   host?: Profile
   photos?: ExperiencePhoto[]
 }
 
 // Lightweight type used only for map pin rendering (matches get_nearby_experiences RPC columns)
-export interface ExperiencePin {
-  id: string
-  title: string
+type NearbyExperience =
+  Database['public']['Functions']['get_nearby_experiences']['Returns'][number]
+
+export type ExperiencePin = Omit<NearbyExperience, 'category'> & {
   category: ExperienceCategory
-  location_lat: number
-  location_lng: number
-  price: number
-  avg_rating: number
 }
 
-export interface ExperiencePhoto {
-  id: string
-  experience_id: string
-  url: string
-  display_order: number
-  uploaded_by: string | null
-  created_at: string
-}
+export type ExperiencePhoto = Tables<'experience_photos'>
 
-export interface Review {
-  id: string
-  experience_id: string
-  author_id: string
-  rating: number
-  body: string | null
-  booking_id: string | null
-  created_at: string
-  updated_at: string
+export type Review = Tables<'reviews'> & {
   // Joined
   author?: Profile
 }
 
-export interface Post {
-  id: string
-  author_id: string
-  experience_id: string | null
-  tagged_host_id: string | null
-  image_url: string
-  caption: string | null
-  like_count: number
-  created_at: string
-  updated_at: string
+export type Post = Tables<'posts'> & {
   // Joined
   author?: Profile
   tagged_host?: Profile
 }
 
-export interface PostLike {
-  post_id: string
-  user_id: string
-  created_at: string
-}
+export type PostLike = Tables<'post_likes'>
 
 // v2 schema — no UI in v1
-export interface Booking {
-  id: string
-  experience_id: string
-  traveller_id: string
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
-  booked_date: string
-  guest_count: number
-  total_price: number
-  payment_intent_id: string | null
-  payment_status: 'unpaid' | 'paid' | 'refunded'
-  created_at: string
-  updated_at: string
-}
+export type Booking = Tables<'bookings'>
 
 // Filter state for the Experiences List Screen
 export interface ExperienceFilters {

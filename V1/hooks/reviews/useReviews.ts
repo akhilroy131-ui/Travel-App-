@@ -38,7 +38,7 @@ export function useReviews(experienceId: string | null): UseReviewsResult {
             id,
             display_name,
             avatar_url,
-            role,
+            is_host,
             bio,
             created_at,
             updated_at

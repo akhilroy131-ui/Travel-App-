@@ -44,7 +44,7 @@ export function usePosts({ authorId, taggedHostId }: UsePostsOptions): UsePostsR
             id,
             display_name,
             avatar_url,
-            role,
+            is_host,
             bio,
             created_at,
             updated_at
@@ -53,7 +53,7 @@ export function usePosts({ authorId, taggedHostId }: UsePostsOptions): UsePostsR
             id,
             display_name,
             avatar_url,
-            role,
+            is_host,
             bio,
             created_at,
             updated_at

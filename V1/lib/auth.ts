@@ -1,13 +1,11 @@
 import { supabase } from './supabase'
-import { UserRole } from '../types/models'
 
 // Email + password sign-up
-// Pass role and display_name in raw_user_meta_data so the DB trigger can pick them up
+// The database trigger creates a traveller profile. Hosting is a later explicit opt-in.
 export async function signUpWithEmail(
   email: string,
   password: string,
-  displayName: string,
-  role: UserRole = 'traveller'
+  displayName: string
 ) {
   return supabase.auth.signUp({
     email,
@@ -15,7 +13,6 @@ export async function signUpWithEmail(
     options: {
       data: {
         display_name: displayName,
-        role,
       },
     },
   })
