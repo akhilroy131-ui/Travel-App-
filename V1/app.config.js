@@ -36,12 +36,7 @@ module.exports = {
       'expo-secure-store',
       'expo-image',
       "expo-router",
-      [
-        'react-native-maps',
-        {
-          googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
-        },
-      ],
+      '@rnmapbox/maps',
       [
         'expo-image-picker',
         {
@@ -60,7 +55,7 @@ module.exports = {
     extra: {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      mapboxToken: process.env.EXPO_PUBLIC_MAPBOX_TOKEN,
     },
     scheme: 'roam', // deep link scheme: roam://
   },

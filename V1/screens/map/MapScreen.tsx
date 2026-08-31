@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Location from 'expo-location'
+import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { AppTabsParamList } from '../../types/navigation'
@@ -13,12 +13,40 @@ import { ExperiencePin } from '../../types/models'
 import { Config } from '../../constants/config'
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme'
 
+const mapboxToken = String(Constants.expoConfig?.extra?.mapboxToken ?? '').trim()
+
+// Expo Go does not contain Mapbox's native module. Builds without a public
+// token must also stay usable instead of taking down the React surface.
+let Mapbox: typeof import('@rnmapbox/maps').default | null = null
+if (mapboxToken) {
+  try {
+    Mapbox = require('@rnmapbox/maps').default
+    Mapbox?.setAccessToken(mapboxToken)
+  } catch {
+    Mapbox = null
+  }
+}
+
 type NavProp = BottomTabNavigationProp<AppTabsParamList, 'Map'>
 
-export default function MapScreen() {
+function MapUnavailable({ missingToken }: { missingToken: boolean }) {
+  return (
+    <View style={styles.unavailable}>
+      <Text style={styles.unavailableEmoji}>🗺️</Text>
+      <Text style={styles.unavailableTitle}>Map setup required</Text>
+      <Text style={styles.unavailableBody}>
+        {missingToken
+          ? 'Add EXPO_PUBLIC_MAPBOX_TOKEN to .env, then rebuild the app to enable Mapbox.'
+          : 'Mapbox needs the native Roam build. Rebuild Android to enable the map.'}
+      </Text>
+    </View>
+  )
+}
+
+function MapScreenContent() {
   const insets = useSafeAreaInsets()
   const navigation = useNavigation<NavProp>()
-  const mapRef = useRef<MapView>(null)
+  const cameraRef = useRef<any>(null)
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationError, setLocationError] = useState(false)
@@ -36,18 +64,21 @@ export default function MapScreen() {
         setLocationError(true)
         return
       }
+
       try {
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-        const userLat = loc.coords.latitude
-        const userLng = loc.coords.longitude
-        setUserLocation({ lat: userLat, lng: userLng })
-        setCentre({ lat: userLat, lng: userLng })
-        mapRef.current?.animateToRegion({
-          latitude: userLat,
-          longitude: userLng,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }, 800)
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        })
+        const lat = location.coords.latitude
+        const lng = location.coords.longitude
+
+        setUserLocation({ lat, lng })
+        setCentre({ lat, lng })
+        cameraRef.current?.setCamera({
+          centerCoordinate: [lng, lat],
+          zoomLevel: Config.MAP_DEFAULT_ZOOM,
+          animationDuration: 800,
+        })
       } catch {
         setLocationError(true)
       }
@@ -62,12 +93,11 @@ export default function MapScreen() {
 
   const handlePinPress = useCallback((pin: ExperiencePin) => {
     setSelectedPin(pin)
-    mapRef.current?.animateToRegion({
-      latitude: pin.location_lat,
-      longitude: pin.location_lng,
-      latitudeDelta: 0.02,
-      longitudeDelta: 0.02,
-    }, 500)
+    cameraRef.current?.setCamera({
+      centerCoordinate: [pin.location_lng, pin.location_lat],
+      zoomLevel: 14,
+      animationDuration: 500,
+    })
   }, [])
 
   const handleDismiss = useCallback(() => setSelectedPin(null), [])
@@ -85,44 +115,50 @@ export default function MapScreen() {
 
   const handleRecenter = useCallback(() => {
     if (!userLocation) return
-    mapRef.current?.animateToRegion({
-      latitude: userLocation.lat,
-      longitude: userLocation.lng,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    }, 600)
+
+    cameraRef.current?.setCamera({
+      centerCoordinate: [userLocation.lng, userLocation.lat],
+      zoomLevel: Config.MAP_DEFAULT_ZOOM,
+      animationDuration: 600,
+    })
   }, [userLocation])
+
+  const MapView = Mapbox!.MapView
+  const Camera = Mapbox!.Camera
+  const LocationPuck = Mapbox!.LocationPuck
+  const MarkerView = Mapbox!.MarkerView
 
   return (
     <View style={styles.screen}>
       <MapView
-        ref={mapRef}
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
-        customMapStyle={darkMapStyle}
-        showsUserLocation
-        showsMyLocationButton={false}
-        initialRegion={{
-          latitude: centre.lat,
-          longitude: centre.lng,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }}
+        styleURL={Mapbox!.StyleURL.Dark}
+        surfaceView={false}
         onPress={handleDismiss}
+        compassEnabled
       >
+        <Camera
+          ref={cameraRef}
+          defaultSettings={{
+            centerCoordinate: [centre.lng, centre.lat],
+            zoomLevel: Config.MAP_DEFAULT_ZOOM,
+          }}
+        />
+
+        <LocationPuck visible />
+
         {pins.map((pin) => (
-          <Marker
+          <MarkerView
             key={pin.id}
-            coordinate={{ latitude: pin.location_lat, longitude: pin.location_lng }}
+            coordinate={[pin.location_lng, pin.location_lat]}
             anchor={{ x: 0.5, y: 1 }}
-            tracksViewChanges={false}
           >
             <MapPin
               pin={pin}
               isSelected={selectedPin?.id === pin.id}
               onPress={handlePinPress}
             />
-          </Marker>
+          </MarkerView>
         ))}
       </MapView>
 
@@ -156,6 +192,12 @@ export default function MapScreen() {
       />
     </View>
   )
+}
+
+export default function MapScreen() {
+  if (!mapboxToken) return <MapUnavailable missingToken />
+  if (!Mapbox) return <MapUnavailable missingToken={false} />
+  return <MapScreenContent />
 }
 
 const styles = StyleSheet.create({
@@ -208,18 +250,27 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.accent,
   },
+  unavailable: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.xxl,
+    gap: Spacing.md,
+  },
+  unavailableEmoji: {
+    fontSize: 48,
+  },
+  unavailableTitle: {
+    color: Colors.textPrimary,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    textAlign: 'center',
+  },
+  unavailableBody: {
+    color: Colors.textSecondary,
+    fontSize: Typography.size.sm,
+    lineHeight: Typography.size.sm * 1.7,
+    textAlign: 'center',
+  },
 })
-
-// Dark map style to match app theme
-const darkMapStyle = [
-  { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c2c54' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212121' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3d3d6e' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1b2a' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4e6d70' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-]

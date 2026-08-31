@@ -12,6 +12,7 @@ test('the native map uses Mapbox and has a safe no-token fallback', async () => 
   ])
 
   assert.ok(packageJson.dependencies['@rnmapbox/maps'])
+  assert.ok(packageJson.dependencies['expo-dev-client'])
   assert.equal(packageJson.dependencies['react-native-maps'], undefined)
   assert.match(appConfig, /@rnmapbox\/maps/)
   assert.match(appConfig, /EXPO_PUBLIC_MAPBOX_TOKEN/)
