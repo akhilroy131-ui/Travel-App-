@@ -29,13 +29,11 @@ Thumbs.db
 # Local agent/tool configuration
 .claude/
 .mcp.json
+/supabase/.temp/
 
 # Local backups
 *.bak/
 /V1/CLAUDE.md
-
-# Standalone planning handoff (not repository-ready source)
-/Updates/
 
 # Logs
 npm-debug.log*

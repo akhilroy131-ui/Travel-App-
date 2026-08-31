@@ -1,5 +1,6 @@
 -- Roam — Full Database Schema
--- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New query)
+-- LEGACY REFERENCE ONLY. DO NOT RUN THIS FILE.
+-- The authoritative schema is ../../supabase/migrations/ at the repository root.
 
 -- ─────────────────────────────────────────
 -- Extensions

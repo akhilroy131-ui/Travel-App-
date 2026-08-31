@@ -1,5 +1,10 @@
 # Roam — Supabase Schema
 
+> **Legacy reference only (2026-09-01):** this document describes the original prototype
+> schema and must not be executed. The authoritative schema is the timestamped migration
+> chain in `../supabase/migrations/` from the repository root, with generated TypeScript
+> types in `types/database.ts`.
+
 ## Extensions Required
 
 Run once in Supabase SQL Editor before any table creation:
