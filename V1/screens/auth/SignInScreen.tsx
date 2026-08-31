@@ -55,7 +55,6 @@ export default function SignInScreen({ navigation }: Props) {
           )}
         </TouchableOpacity>
 
-        {/* TODO Phase 2: Google and Apple OAuth buttons */}
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>

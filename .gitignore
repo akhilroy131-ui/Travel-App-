@@ -26,6 +26,17 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Local agent/tool configuration
+.claude/
+.mcp.json
+
+# Local backups
+*.bak/
+/V1/CLAUDE.md
+
+# Standalone planning handoff (not repository-ready source)
+/Updates/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

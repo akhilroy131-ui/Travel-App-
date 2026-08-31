@@ -20,7 +20,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../../constan
 
 type Props = NativeStackScreenProps<ExperienceStackParamList, 'ExperiencesList'>
 
-type SortOption = ExperienceFilters['sortBy']
+type SortOption = Exclude<ExperienceFilters['sortBy'], 'distance'>
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'newest', label: 'Newest' },

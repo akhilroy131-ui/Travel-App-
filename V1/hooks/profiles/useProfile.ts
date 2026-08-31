@@ -29,10 +29,10 @@ export function useProfile(userId: string | null): UseProfileResult {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
       if (queryError) throw queryError
-      setProfile(data as Profile)
+      setProfile((data ?? null) as Profile | null)
     } catch (err: any) {
       setError(err?.message ?? 'Failed to load profile')
     } finally {

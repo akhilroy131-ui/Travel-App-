@@ -5,12 +5,14 @@
 | Layer | Technology | Version |
 |---|---|---|
 | Framework | React Native + Expo | SDK 55 |
-| Language | TypeScript | ~5.9 (strict: false) |
+| Language | TypeScript | ~5.9 (strict: true) |
 | Navigation | React Navigation v7 (native-stack + bottom-tabs) | ^7 |
 | Backend | Supabase (Auth, PostgreSQL, Realtime, Storage) | ^2 |
-| Maps | @rnmapbox/maps | 10.3.0 |
+| Maps | react-native-maps (Google provider) | ^1.27 |
 | State | React hooks only — no Redux/Zustand in v1 | — |
 | Auth (v1) | Email/password, Google OAuth, Apple Sign-In | — |
+
+> **Note:** GitHub OAuth was removed. Supported providers: email/password, Google, Apple.
 
 ---
 
@@ -138,9 +140,7 @@ V1/
 ```
 EXPO_PUBLIC_SUPABASE_URL=        ← Supabase project URL
 EXPO_PUBLIC_SUPABASE_ANON_KEY=   ← Supabase anon/public key
-EXPO_PUBLIC_MAPBOX_TOKEN=        ← Mapbox public token (pk.*) — used at runtime
-MAPBOX_DOWNLOADS_TOKEN=          ← Mapbox secret token (sk.*) — used at BUILD TIME only
-                                    (pulls Mapbox SDK from private Maven/CocoaPods repos)
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY= ← Google Maps SDK key used by native map builds
 ```
 
 These are read in `app.config.js` and passed to the app via `Constants.expoConfig.extra`.
@@ -202,5 +202,5 @@ navigation.navigate('Experiences', {
 | 5 | Experience Detail Screen | Builds on list; adds gallery + reviews |
 | 6 | Host Landing Page | Builds on detail; adds photo wall |
 | 7 | Customer Profile | Adds post creation + likes |
-| 8 | Map Screen (last) | Mapbox native setup is friction-heavy |
+| 8 | Map Screen (last) | Native Google Maps setup is friction-heavy |
 | 9 | Polish | Empty states, skeletons, pull-to-refresh |

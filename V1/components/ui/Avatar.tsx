@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, ViewStyle } from 'react-native'
+import { View, Text, StyleSheet, ImageStyle, StyleProp } from 'react-native'
 import { Image } from 'expo-image'
 import { Colors, Typography, BorderRadius } from '../../constants/theme'
 
@@ -7,7 +7,7 @@ interface AvatarProps {
   uri: string | null
   size?: number
   fallbackInitials?: string
-  style?: ViewStyle
+  style?: StyleProp<ImageStyle>
 }
 
 export function Avatar({ uri, size = 40, fallbackInitials, style }: AvatarProps) {

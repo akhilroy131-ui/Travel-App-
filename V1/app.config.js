@@ -35,12 +35,11 @@ module.exports = {
     plugins: [
       'expo-secure-store',
       'expo-image',
+      "expo-router",
       [
-        '@rnmapbox/maps',
+        'react-native-maps',
         {
-          // Downloads token (sk.*) — required to pull the Mapbox SDK on build.
-          // Add MAPBOX_DOWNLOADS_TOKEN=sk.eyJ1... to your .env file.
-          RNMapboxMapsDownloadsToken: process.env.MAPBOX_DOWNLOADS_TOKEN ?? '',
+          googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
         },
       ],
       [
@@ -61,7 +60,7 @@ module.exports = {
     extra: {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-      mapboxToken: process.env.EXPO_PUBLIC_MAPBOX_TOKEN,
+      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
     },
     scheme: 'roam', // deep link scheme: roam://
   },

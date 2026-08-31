@@ -312,7 +312,7 @@ interface ErrorBoundaryProps {
 ---
 
 ### `MapPin`
-Custom Mapbox `PointAnnotation` marker (Phase 8). Colour reflects category.
+Custom `react-native-maps` marker content (Phase 8). Colour reflects category.
 
 ```typescript
 interface MapPinProps {
